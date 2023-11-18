@@ -33,7 +33,7 @@ public class FrequentNumbers {
         }
     }
 
-    private static void calcfrequency(int K) 
+    private static void calcfreq(int K) 
     {
         int n = A.length;
         int[][] freqArr = new int[n][2];
