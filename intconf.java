@@ -409,43 +409,51 @@ public class intconf extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_NameActionPerformed
 
-    private void SEARCHActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SEARCHActionPerformed
+    private void SEARCHActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SEARCHActionPerformed                                    
 
         // TODO add your handling code here:
-        def=(DefaultTableModel)conf2.getModel();
-
-        String country=Country.getText();
-        if (!country.isEmpty()) {
-            try {
-                pat = con.prepareStatement("SELECT * FROM conference WHERE Name LIKE ? OR Country LIKE ?");
-                pat.setString(1, "%" + country + "%");
-                pat.setString(2, "%" + country + "%");
-
-                ResultSet rs = pat.executeQuery();
-                ResultSetMetaData rss = rs.getMetaData();
-                int c, i;
-                c = rss.getColumnCount();
-                def = (DefaultTableModel) conf2.getModel();
-                def.setRowCount(0);
-
-                while (rs.next()) {
-                    Vector v = new Vector();
-                    for (i = 0; i < c; i++) {
-                        v.add(rs.getString("Name"));
-                        v.add(rs.getString("Email"));
-                        v.add(rs.getString("Phone"));
-                        v.add(rs.getString("Country"));
-                    }
-                    def.addRow(v);
-                }
-            } catch (SQLException ex) {
-                Logger.getLogger(intconf.class.getName()).log(Level.SEVERE, null, ex);
-                JOptionPane.showMessageDialog(this, "Error searching attendees. Check the console for details.");
+        try {
+            String name, country;
+            name = Name.getText();
+            country = Country.getText();
+            StringBuilder queryBuilder = new StringBuilder("select * from conf1 where 1=1");
+          
+            if (!name.isEmpty()) {
+                queryBuilder.append(" AND Name LIKE ?");
             }
-        } else {
-            // Handle empty search query
-            JOptionPane.showMessageDialog(this, "Please enter a search query.");
+
+            if (!country.isEmpty()) {
+                queryBuilder.append(" AND Country LIKE ?");
+            }
+
+            pat = con.prepareStatement(queryBuilder.toString());
+
+            int parameterIndex = 1;
+
+            if (!name.isEmpty()) {
+                pat.setString(parameterIndex++, "%" + name + "%");
+            }
+
+            if (!country.isEmpty()) {
+                pat.setString(parameterIndex++, "%" + country + "%");
+            }
+
+            ResultSet rs = pat.executeQuery();
+
+            // Update the table with search results
+            DefaultTableModel model = (DefaultTableModel)conf2.getModel();
+            model.setRowCount(0); // Clear previous data
+            Load();
+
+            if (model.getRowCount() == 0) {
+                JOptionPane.showMessageDialog(this, "No matching records found!");
+            }
+
+        } catch (SQLException ex) {
+            Logger.getLogger(intconf.class.getName()).log(Level.SEVERE, null, ex);
         }
+    
+    }  
     }//GEN-LAST:event_SEARCHActionPerformed
 
     private void conf2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_conf2MouseClicked
